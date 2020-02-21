@@ -205,7 +205,7 @@ public class GuessWhoScript : MonoBehaviour
 		}
 		
 		string[] Supper = {FirstState, SecondState, ThirdState, FourthState, FifthState, SixthState, SeventhState, EighthState};
-		Debug.LogFormat("Sequence Given: {1}", moduleId, DebugSequence[TheArray[0]] + "(" + Supper[TheArray[0]] + ")" + ", " + DebugSequence[TheArray[1]] + "(" + Supper[TheArray[1]] + ")" + ", " + DebugSequence[TheArray[2]] + "(" + Supper[TheArray[2]] + ")" + ", " + DebugSequence[TheArray[3]] + "(" + Supper[TheArray[3]] + ")" + ", " + DebugSequence[TheArray[4]] + "(" + Supper[TheArray[4]] + ")" + ", " + DebugSequence[TheArray[5]] + "(" + Supper[TheArray[5]] + ")" + ", " + DebugSequence[TheArray[6]] + "(" + Supper[TheArray[6]] + ")" + ", " + DebugSequence[TheArray[7]] + "(" + Supper[TheArray[7]] + ")");
+		Debug.LogFormat("[Guess Who? #{0}] Sequence Given: {1}", moduleId, DebugSequence[TheArray[0]] + "(" + Supper[TheArray[0]] + ")" + ", " + DebugSequence[TheArray[1]] + "(" + Supper[TheArray[1]] + ")" + ", " + DebugSequence[TheArray[2]] + "(" + Supper[TheArray[2]] + ")" + ", " + DebugSequence[TheArray[3]] + "(" + Supper[TheArray[3]] + ")" + ", " + DebugSequence[TheArray[4]] + "(" + Supper[TheArray[4]] + ")" + ", " + DebugSequence[TheArray[5]] + "(" + Supper[TheArray[5]] + ")" + ", " + DebugSequence[TheArray[6]] + "(" + Supper[TheArray[6]] + ")" + ", " + DebugSequence[TheArray[7]] + "(" + Supper[TheArray[7]] + ")");
 
 	}
 	
@@ -224,7 +224,8 @@ public class GuessWhoScript : MonoBehaviour
 		TheCombination = (FirstPower * 128) + (SecondPower * 64) + (ThirdPower * 32) + (FourthPower * 16) + (FifthPower * 8) + (SixthPower * 4) + (SeventhPower * 2) + (EighthPower * 1);
 		
 		Answer = Names[TheCombination].ToUpper();
-		Debug.LogFormat("Name Chosen: {1}", moduleId, Answer);
+		Debug.LogFormat("[Guess Who? #{0}] Number Gathered: {1}", moduleId, TheCombination.ToString());
+		Debug.LogFormat("[Guess Who? #{0}] Name of the Person: {1} ", moduleId, Answer);
 	}
 	
 	void TheScreens()
@@ -358,7 +359,7 @@ public class GuessWhoScript : MonoBehaviour
 		
 		else if (Solvable == 1)
 		{
-		Debug.LogFormat("You Submitted: {1}", moduleId, Alphabet[TheFirstInteger] + Alphabet[TheSecondInteger] + Alphabet[TheThirdInteger] + Alphabet[TheFourthInteger] + Alphabet[TheFifthInteger]);
+		Debug.LogFormat("[Guess Who? #{0}] You Submitted: {1}", moduleId, Alphabet[TheFirstInteger] + Alphabet[TheSecondInteger] + Alphabet[TheThirdInteger] + Alphabet[TheFourthInteger] + Alphabet[TheFifthInteger]);
 			if ((Alphabet[TheFirstInteger] + Alphabet[TheSecondInteger] + Alphabet[TheThirdInteger] + Alphabet[TheFourthInteger] + Alphabet[TheFifthInteger]) == Answer)
 			{
 				TheMarker.text = "";
@@ -854,7 +855,7 @@ public class GuessWhoScript : MonoBehaviour
 			ThirdDisplay.text = "S";
 			FourthDisplay.text = "E";
 			FifthDisplay.text = "T";
-			Debug.LogFormat("Incorrect name. Try again!");
+			Debug.LogFormat("[Guess Who? #{0}] Name does not match. Try again!", moduleId);
 			yield return new WaitForSeconds(1f);
 			Module.HandleStrike();
 			Reset();
@@ -898,7 +899,7 @@ public class GuessWhoScript : MonoBehaviour
 			FourthDisplay.text = "E";
 			FifthDisplay.text = "";
 			Exclaim.text = "!";			
-			Debug.LogFormat("The name is correct!");
+			Debug.LogFormat("[Guess Who? #{0}] Its a match. Module is done!", moduleId);
 			Audio.PlaySoundAtTransform(SFX[5].name, transform);
 			Module.HandlePass();
 		}	
