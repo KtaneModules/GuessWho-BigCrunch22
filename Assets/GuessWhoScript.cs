@@ -362,17 +362,17 @@ public class GuessWhoScript : MonoBehaviour
 		Debug.LogFormat("[Guess Who? #{0}] You Submitted: {1}", moduleId, Alphabet[TheFirstInteger] + Alphabet[TheSecondInteger] + Alphabet[TheThirdInteger] + Alphabet[TheFourthInteger] + Alphabet[TheFifthInteger]);
 			if ((Alphabet[TheFirstInteger] + Alphabet[TheSecondInteger] + Alphabet[TheThirdInteger] + Alphabet[TheFourthInteger] + Alphabet[TheFifthInteger]) == Answer)
 			{
+				Solvable = 3;
 				TheMarker.text = "";
 				ButtonSays.text = "";
 				StartCoroutine(YouGotIt());
-				Solvable = 3;
 			}
 			else
 			{
+				Solvable = 3;
 				TheMarker.text = "";
 				ButtonSays.text = "";
 				StartCoroutine(ThatIsNotIt());
-				Solvable = 3;
 			}
 		}
 	}	
@@ -380,50 +380,20 @@ public class GuessWhoScript : MonoBehaviour
 	IEnumerator ProcessingTheImages()
 	{
 		ButtonSays.text = "";
-		PleaseWait.text = "P";
-		yield return new WaitForSeconds(0.05f);
-		PleaseWait.text = "Pl";
-		yield return new WaitForSeconds(0.05f);
-		PleaseWait.text = "Ple";
-		yield return new WaitForSeconds(0.05f);
-		PleaseWait.text = "Plea";
-		yield return new WaitForSeconds(0.05f);
-		PleaseWait.text = "Pleas";
-		yield return new WaitForSeconds(0.05f);
-		PleaseWait.text = "Please\n";
-		yield return new WaitForSeconds(0.05f);
-		PleaseWait.text = "Please\nW";
-		yield return new WaitForSeconds(0.05f);
-		PleaseWait.text = "Please\nWa";
-		yield return new WaitForSeconds(0.05f);
-		PleaseWait.text = "Please\nWai";
-		yield return new WaitForSeconds(0.05f);
-		PleaseWait.text = "Please\nWait";
+		string Waiting = "Please\nWait";
+		for (int j = 0; j < Waiting.Length; j++)
+		{
+			PleaseWait.text += Waiting[j].ToString();
+			yield return new WaitForSeconds(0.05f);
+		}
 		yield return new WaitForSeconds(0.625f);
-		Dots.text = ".";
-		Audio.PlaySoundAtTransform(SFX[0].name, transform);
-		yield return new WaitForSeconds(0.625f);
-		Dots.text = "..";
-		Audio.PlaySoundAtTransform(SFX[0].name, transform);
-		yield return new WaitForSeconds(0.625f);
-		Dots.text = "...";
-		Audio.PlaySoundAtTransform(SFX[0].name, transform);
-		yield return new WaitForSeconds(0.625f);
-		Dots.text = "....";
-		Audio.PlaySoundAtTransform(SFX[0].name, transform);
-		yield return new WaitForSeconds(0.625f);
-		Dots.text = ".....";
-		Audio.PlaySoundAtTransform(SFX[0].name, transform);
-		yield return new WaitForSeconds(0.625f);
-		Dots.text = "......";
-		Audio.PlaySoundAtTransform(SFX[0].name, transform);
-		yield return new WaitForSeconds(0.625f);
-		Dots.text = ".......";
-		Audio.PlaySoundAtTransform(SFX[0].name, transform);
-		yield return new WaitForSeconds(0.625f);
-		Dots.text = "........";
-		Audio.PlaySoundAtTransform(SFX[0].name, transform);
-		yield return new WaitForSeconds(0.625f);
+		string Dotes = "........";
+		for (int v = 0; v < Dotes.Length; v++)
+		{
+			Dots.text += Dotes[v].ToString();
+			Audio.PlaySoundAtTransform(SFX[0].name, transform);
+			yield return new WaitForSeconds(0.625f);
+		}
 		StartCoroutine(TheFollowing());
 		
 	}
@@ -432,46 +402,12 @@ public class GuessWhoScript : MonoBehaviour
 	{
 		PleaseWait.text = "";
 		Dots.text = "";
-		yield return new WaitForSeconds(0.05f);
-		TheQuestion.text = "I";
-		yield return new WaitForSeconds(0.05f);
-		TheQuestion.text = "Is";
-		yield return new WaitForSeconds(0.05f);
-		TheQuestion.text = "Is ";
-		yield return new WaitForSeconds(0.05f);
-		TheQuestion.text = "Is t";
-		yield return new WaitForSeconds(0.05f);
-		TheQuestion.text = "Is th";
-		yield return new WaitForSeconds(0.05f);
-		TheQuestion.text = "Is the\n";
-		yield return new WaitForSeconds(0.05f);
-		TheQuestion.text = "Is the\ns";
-		yield return new WaitForSeconds(0.05f);
-		TheQuestion.text = "Is the\nst";
-		yield return new WaitForSeconds(0.05f);
-		TheQuestion.text = "Is the\nsta";
-		yield return new WaitForSeconds(0.05f);
-		TheQuestion.text = "Is the\nstat";
-		yield return new WaitForSeconds(0.05f);
-		TheQuestion.text = "Is the\nstate";
-		yield return new WaitForSeconds(0.05f);
-		TheQuestion.text = "Is the\nstatem";
-		yield return new WaitForSeconds(0.05f);
-		TheQuestion.text = "Is the\nstatem";
-		yield return new WaitForSeconds(0.05f);
-		TheQuestion.text = "Is the\nstateme";
-		yield return new WaitForSeconds(0.05f);
-		TheQuestion.text = "Is the\nstatemen";
-		yield return new WaitForSeconds(0.05f);
-		TheQuestion.text = "Is the\nstatement\n";
-		yield return new WaitForSeconds(0.05f);
-		TheQuestion.text = "Is the\nstatement\nt";
-		yield return new WaitForSeconds(0.05f);
-		TheQuestion.text = "Is the\nstatement\ntr";
-		yield return new WaitForSeconds(0.05f);
-		TheQuestion.text = "Is the\nstatement\ntru";
-		yield return new WaitForSeconds(0.05f);
-		TheQuestion.text = "Is the\nstatement\ntrue";
+		string Delayed = "Is the\nstatement\ntrue";
+		for (int x = 0; x < Delayed.Length; x++)
+		{
+			yield return new WaitForSeconds(0.0425f);
+			TheQuestion.text += Delayed[x].ToString();
+		}
 		StartCoroutine(TheProcess());
 	}
 	
