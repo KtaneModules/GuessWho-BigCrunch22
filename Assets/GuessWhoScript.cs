@@ -2,6 +2,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text.RegularExpressions;
 using UnityEngine;
 using KModkit;
 
@@ -379,6 +380,7 @@ public class GuessWhoScript : MonoBehaviour
 
 	IEnumerator ProcessingTheImages()
 	{
+		Recalling = true;
 		ButtonSays.text = "";
 		string Waiting = "Please\nWait";
 		for (int j = 0; j < Waiting.Length; j++)
@@ -755,6 +757,8 @@ public class GuessWhoScript : MonoBehaviour
 		ButtonSays.text = "GUESS";
 		Audio.PlaySoundAtTransform(SFX[1].name, transform);
 		Solvable = 1;
+		Recalling = false;
+		Guessing = true;
 	}
 	
 	IEnumerator NotCopycat()
@@ -796,7 +800,8 @@ public class GuessWhoScript : MonoBehaviour
 			Module.HandleStrike();
 			Reset();
 			ActivateModule();
-			
+			Processing = false;
+			Guessing = false;
 		}	
 	}
 	
@@ -838,12 +843,14 @@ public class GuessWhoScript : MonoBehaviour
 			Debug.LogFormat("[Guess Who? #{0}] Its a match. Module is done!", moduleId);
 			Audio.PlaySoundAtTransform(SFX[5].name, transform);
 			Module.HandlePass();
+			Processing = false;
 		}	
 	}
 	
 	
 	IEnumerator YouGotIt()
 	{
+		Processing = true;
 		while (StackNumber < 300)
 		{
 			int rand1 = UnityEngine.Random.Range(0, 26);
@@ -864,6 +871,7 @@ public class GuessWhoScript : MonoBehaviour
 	
 	IEnumerator ThatIsNotIt()
 	{
+		Processing = true;
 		while (StackNumber < 300)
 		{
 			int rand1 = UnityEngine.Random.Range(0, 26);
@@ -884,30 +892,162 @@ public class GuessWhoScript : MonoBehaviour
 	
 	void Reset()
 	{
-	TheFirstInteger = 0;
-	TheSecondInteger = 0;
-	TheThirdInteger = 0;
-	TheFourthInteger = 0;
-	TheFifthInteger = 0;
+		TheFirstInteger = 0;
+		TheSecondInteger = 0;
+		TheThirdInteger = 0;
+		TheFourthInteger = 0;
+		TheFifthInteger = 0;
+		
+		TheCombination = 0;
+		
+		Solvable = 0;
+		
+		Order = 0;
+		StackNumber = 0;
+		
+		FirstDisplay.text = "";
+		SecondDisplay.text = "";
+		ThirdDisplay.text = "";
+		FourthDisplay.text = "";
+		FifthDisplay.text = "";
+		TheTrue.text = "";
+		
+		FirstDisplay.color = Color.white;
+		SecondDisplay.color = Color.white;
+		ThirdDisplay.color = Color.white;
+		FourthDisplay.color = Color.white;
+		FifthDisplay.color = Color.white;
+	}
 	
-	TheCombination = 0;
+	//twitch plays
+    #pragma warning disable 414
+    private readonly string TwitchHelpMessage = @"To start the module, use !{0} to recall the answers | To submit the name in the module, use !{0} guess [NAME] | The name must be typed in all capital letters.";
+    #pragma warning restore 414
 	
-	Solvable = 0;
+	bool Recalling = false;
+	bool Guessing = false;
+	bool Processing = false;
 	
-	Order = 0;
-	StackNumber = 0;
-	
-	FirstDisplay.text = "";
-	SecondDisplay.text = "";
-	ThirdDisplay.text = "";
-	FourthDisplay.text = "";
-	FifthDisplay.text = "";
-	TheTrue.text = "";
-	
-	FirstDisplay.color = Color.white;
-	SecondDisplay.color = Color.white;
-	ThirdDisplay.color = Color.white;
-	FourthDisplay.color = Color.white;
-	FifthDisplay.color = Color.white;
+	IEnumerator ProcessTwitchCommand(string command)
+	{
+		string[] parameters = command.Split(' ');
+		if (Regex.IsMatch(command, @"^\s*recall\s*$", RegexOptions.IgnoreCase | RegexOptions.CultureInvariant))
+		{
+			yield return null;
+			if (Recalling)
+			{
+				yield return "sendtochaterror The module is recalling. The command was not processed.";
+				yield break;
+			}
+			else if (Guessing)
+			{
+				yield return "sendtochaterror You are currently guessing a person. The command was not processed.";
+				yield break;
+			}
+			
+			else if (Processing)
+			{
+				yield return "sendtochaterror The module is currently processing the answer. The command was not processed.";
+				yield break;
+			}
+			MainButton.OnInteract();
+		}
+		
+		if (Regex.IsMatch(parameters[0], @"^\s*guess\s*$", RegexOptions.IgnoreCase | RegexOptions.CultureInvariant))
+		{
+			yield return null;
+			if (parameters.Length > 2 || parameters.Length < 2)
+			{
+				yield return "sendtochaterror Parameter length is not valid. The command was not processed.";
+				yield break;
+			}
+			
+			else if (Recalling)
+			{
+				yield return "sendtochaterror The module is recalling. The command was not processed.";
+				yield break;
+			}
+			
+			else if (!Guessing)
+			{
+				yield return "sendtochaterror You are currently not guessing a person. The command was not processed.";
+				yield break;
+			}
+			
+			else if (Processing)
+			{
+				yield return "sendtochaterror The module is currently processing the answer. The command was not processed.";
+				yield break;
+			}
+			
+			else if (parameters[1].Length > 5 || parameters[1].Length < 5)
+			{
+				yield return "sendtochaterror Name length is too long/short. The command was not processed.";
+				yield break;
+			}
+			
+			foreach (char c in parameters[1])
+			{
+				if (!c.ToString().EqualsAny(Alphabet))
+				{
+					yield return "sendtochaterror The name contains an invalid character. The command was not processed.";
+					yield break;
+				}
+			}
+			
+			int NumberPress = 0;
+			foreach (char c in parameters[1])
+			{
+				if (NumberPress == 0)
+				{
+					while (FirstDisplay.text != parameters[1][NumberPress].ToString())
+					{
+						FirstRightButton.OnInteract();
+						yield return new WaitForSecondsRealtime(0.05f);
+					}
+					NumberPress++;
+				}
+				
+				else if (NumberPress == 1)
+				{
+					while (SecondDisplay.text != parameters[1][NumberPress].ToString())
+					{
+						SecondRightButton.OnInteract();
+						yield return new WaitForSecondsRealtime(0.05f);
+					}
+					NumberPress++;
+				}
+				
+				else if (NumberPress == 2)
+				{
+					while (ThirdDisplay.text != parameters[1][NumberPress].ToString())
+					{
+						ThirdRightButton.OnInteract();
+						yield return new WaitForSecondsRealtime(0.05f);
+					}
+					NumberPress++;
+				}
+				
+				else if (NumberPress == 3)
+				{
+					while (FourthDisplay.text != parameters[1][NumberPress].ToString())
+					{
+						FourthRightButton.OnInteract();
+						yield return new WaitForSecondsRealtime(0.05f);
+					}
+					NumberPress++;
+				}
+				
+				else if (NumberPress == 4)
+				{
+					while (FifthDisplay.text != parameters[1][NumberPress].ToString())
+					{
+						FifthRightButton.OnInteract();
+						yield return new WaitForSecondsRealtime(0.05f);
+					}
+					MainButton.OnInteract();
+				}
+			}
+		}
 	}
 }
