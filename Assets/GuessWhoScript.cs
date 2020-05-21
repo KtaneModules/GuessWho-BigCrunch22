@@ -994,7 +994,8 @@ public class GuessWhoScript : MonoBehaviour
 					yield break;
 				}
 			}
-			
+			yield return "solve";
+			yield return "strike";
 			int NumberPress = 0;
 			foreach (char c in parameters[1])
 			{
