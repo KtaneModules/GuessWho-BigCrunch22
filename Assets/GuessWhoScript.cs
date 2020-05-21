@@ -921,7 +921,7 @@ public class GuessWhoScript : MonoBehaviour
 	
 	//twitch plays
     #pragma warning disable 414
-    private readonly string TwitchHelpMessage = @"To start the module, use !{0} to recall the answers | To submit the name in the module, use !{0} guess [NAME] | The name must be typed in all capital letters.";
+    private readonly string TwitchHelpMessage = @"To start the module, use !{0} recall, or !{0} recallfocus to recall the answers | To submit the name in the module, use !{0} guess [NAME] | The name must be typed in all capital letters.";
     #pragma warning restore 414
 	
 	bool Recalling = false;
@@ -951,6 +951,32 @@ public class GuessWhoScript : MonoBehaviour
 				yield break;
 			}
 			MainButton.OnInteract();
+		}
+		
+		if (Regex.IsMatch(command, @"^\s*recallfocus\s*$", RegexOptions.IgnoreCase | RegexOptions.CultureInvariant))
+		{
+			yield return null;
+			if (Recalling)
+			{
+				yield return "sendtochaterror The module is recalling. The command was not processed.";
+				yield break;
+			}
+			else if (Guessing)
+			{
+				yield return "sendtochaterror You are currently guessing a person. The command was not processed.";
+				yield break;
+			}
+			
+			else if (Processing)
+			{
+				yield return "sendtochaterror The module is currently processing the answer. The command was not processed.";
+				yield break;
+			}
+			MainButton.OnInteract();
+			while (Recalling)
+			{
+				yield return null;
+			}
 		}
 		
 		if (Regex.IsMatch(parameters[0], @"^\s*guess\s*$", RegexOptions.IgnoreCase | RegexOptions.CultureInvariant))
@@ -994,8 +1020,7 @@ public class GuessWhoScript : MonoBehaviour
 					yield break;
 				}
 			}
-			yield return "solve";
-			yield return "strike";
+				
 			int NumberPress = 0;
 			foreach (char c in parameters[1])
 			{
@@ -1046,6 +1071,8 @@ public class GuessWhoScript : MonoBehaviour
 						FifthRightButton.OnInteract();
 						yield return new WaitForSecondsRealtime(0.05f);
 					}
+					yield return "solve";
+					yield return "strike";
 					MainButton.OnInteract();
 				}
 			}
