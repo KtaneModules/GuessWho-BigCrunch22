@@ -783,7 +783,7 @@ public class GuessWhoScript : MonoBehaviour
 			TheTrue.text = "Not\nRight";
 		}	
 		
-		if (StackNumber == 300)
+		else if (StackNumber == 300)
 		{
 			FirstDisplay.color = Color.red;
 			SecondDisplay.color = Color.red;
@@ -827,7 +827,7 @@ public class GuessWhoScript : MonoBehaviour
 			TheTrue.text = "You\nGot It";
 		}	
 		
-		if (StackNumber == 300)
+		else if (StackNumber == 300)
 		{
 			FirstDisplay.color = Color.green;
 			SecondDisplay.color = Color.green;
