@@ -13,26 +13,11 @@ public class GuessWhoScript : MonoBehaviour
 	public KMBombModule Module;
 	
 	public AudioClip[] SFX;
-	
-	public KMSelectable FirstLeftButton;
-	public KMSelectable FirstRightButton;
-	public KMSelectable SecondLeftButton;
-	public KMSelectable SecondRightButton;
-	public KMSelectable ThirdLeftButton;
-	public KMSelectable ThirdRightButton;
-	public KMSelectable FourthLeftButton;
-	public KMSelectable FourthRightButton;
-	public KMSelectable FifthLeftButton;
-	public KMSelectable FifthRightButton;
-	
+	public KMSelectable[] ButtonLeft;
+	public KMSelectable[] ButtonRight;
 	public KMSelectable MainButton;
 	
-	public TextMesh FirstDisplay;
-	public TextMesh SecondDisplay;
-	public TextMesh ThirdDisplay;
-	public TextMesh FourthDisplay;
-	public TextMesh FifthDisplay;
-	
+	public TextMesh[] Displays;
 	public TextMesh ButtonSays;
 	
 	public TextMesh PleaseWait;
@@ -44,63 +29,50 @@ public class GuessWhoScript : MonoBehaviour
 	public TextMesh TheMarker;
 	public TextMesh TheTrue;
 	
-	public Color TheOrange;
-	public Color TheIndigo;
-	public Color TheViolet;
-	public Color ThePink;
-	
+	public Color[] ROYGBIVP;
 	public string[] Names;
+	string[] Alphabet = {"A", "B", "C", "D", "E", "F", "G", "H", "I", "J", "K", "L", "M", "N", "O", "P", "Q", "R", "S", "T", "U", "V", "W", "X", "Y", "Z"};
+	string[] DebugSequence = {"Red", "Orange", "Yellow", "Green", "Blue", "Indigo", "Violet", "Pink"};
+	int[] TheArray = {0, 1, 2, 3, 4, 5, 6, 7};
 	
-	private string[] Alphabet = {"A", "B", "C", "D", "E", "F", "G", "H", "I", "J", "K", "L", "M", "N", "O", "P", "Q", "R", "S", "T", "U", "V", "W", "X", "Y", "Z"};
-	private int[] TheArray = {0, 1, 2, 3, 4, 5, 6, 7};
-	private string[] DebugSequence = {"Red", "Orange", "Yellow", "Green", "Blue", "Indigo", "Violet", "Pink"};
-	
-	private int TheFirstInteger = 0;
-	private int TheSecondInteger = 0;
-	private int TheThirdInteger = 0;
-	private int TheFourthInteger = 0;
-	private int TheFifthInteger = 0;
-	
-	private int EighthPower = 0;
-	private int SeventhPower = 0;
-	private int SixthPower = 0;
-	private int FifthPower = 0;
-	private int FourthPower = 0;
-	private int ThirdPower = 0;
-	private int SecondPower = 0;
-	private int FirstPower = 0;
-	
-	private int TheCombination = 0;
-	private bool Playable = false; 
-	
-	private int Solvable = 0;
-	
-	private	int Order = 0;
-	private int StackNumber = 0;
-	
-	private string Answer = "";
+	int[] NumberBase = {0,0,0,0,0};
+	int[] Bases = new int[8];
+	int TheCombination = 0;
+	bool Playable = true; 
+	bool Solvable = false;
+	string Baseline;
 	
 	//Logging
 	static int moduleIdCounter = 1;
 	int moduleId;
 	private bool ModuleSolved;
-
+	
 	void Awake()
-	{
-		moduleId = moduleIdCounter++;
-		FirstLeftButton.OnInteract += delegate() { PressFirstLeftButton(); return false; };
-		FirstRightButton.OnInteract += delegate() { PressFirstRightButton(); return false; };
-		SecondLeftButton.OnInteract += delegate() { PressSecondLeftButton(); return false; };
-		SecondRightButton.OnInteract += delegate() { PressSecondRightButton(); return false; };
-		ThirdLeftButton.OnInteract += delegate() { PressThirdLeftButton(); return false; };
-		ThirdRightButton.OnInteract += delegate() { PressThirdRightButton(); return false; };
-		FourthLeftButton.OnInteract += delegate() { PressFourthLeftButton(); return false; };
-		FourthRightButton.OnInteract += delegate() { PressFourthRightButton(); return false; };
-		FifthLeftButton.OnInteract += delegate() { PressFifthLeftButton(); return false; };
-		FifthRightButton.OnInteract += delegate() { PressFifthRightButton(); return false; };
-		MainButton.OnInteract += delegate() { PressMainButton(); return false; };
+    {
+        moduleId = moduleIdCounter++;
+        for (int a = 0; a < 5; a++)
+        {
+			int LeftPress = a;
+            ButtonLeft[a].OnInteract += delegate
+            {
+                Left(LeftPress);
+                return false;
+            };
+        }
+		
+		for (int b = 0; b < 5; b++)
+        {
+			int RightPress = b;
+            ButtonRight[b].OnInteract += delegate
+            {
+                Right(RightPress);
+                return false;
+            };
+        }
+		
+		MainButton.OnInteract += delegate() { MainFunction(); return false; };
 	}
-
+	
 	void Start()
 	{
 		Module.OnActivate += ActivateModule;
@@ -114,271 +86,90 @@ public class GuessWhoScript : MonoBehaviour
 		ButtonSays.text = "RECALL";
 	}
 	
-	void StateOfTheSequence()
+	void Left(int LeftPress)
 	{
-		string FirstState = "";
-		string SecondState = "";
-		string ThirdState = "";
-		string FourthState = "";
-		string FifthState = "";
-		string SixthState = "";
-		string SeventhState = "";
-		string EighthState = "";
-		
-		if (FirstPower == 1)
+		ButtonLeft[LeftPress].AddInteractionPunch(0.2f);
+		Audio.PlaySoundAtTransform(SFX[6].name, transform);
+		if (Solvable && Playable)
 		{
-			FirstState = "✓";
+			NumberBase[LeftPress] = ((NumberBase[LeftPress] - 1) + 26) % 26;
+			Displays[LeftPress].text = Alphabet[NumberBase[LeftPress]];
+		}
+	}
+	
+	void Right(int RightPress)
+	{
+		ButtonRight[RightPress].AddInteractionPunch(0.2f);
+		Audio.PlaySoundAtTransform(SFX[6].name, transform);
+		if (Solvable && Playable)
+		{
+			NumberBase[RightPress] = (NumberBase[RightPress] + 1) % 26;
+			Displays[RightPress].text = Alphabet[NumberBase[RightPress]];
+		}
+	}
+	
+	void MainFunction()
+	{
+		MainButton.AddInteractionPunch(0.2f);
+		Audio.PlaySoundAtTransform(SFX[2].name, transform);
+		if (Playable && !Solvable)
+		{
+			StartCoroutine(ProcessingTheNames());
+			Playable = false;
 		}
 		
-		else if (FirstPower == 0)
+		else if(Playable && Solvable)
 		{
-			FirstState = "✘";
+			Playable = false;
+			Solvable = true;
+			StartCoroutine(ProcessingTheInput());
 		}
-		
-		if (SecondPower == 1)
-		{
-			SecondState = "✓";
-		}
-		
-		else if (SecondPower == 0)
-		{
-			SecondState = "✘";
-		}
-		
-		if (ThirdPower == 1)
-		{
-			ThirdState = "✓";
-		}
-		
-		else if (ThirdPower == 0)
-		{
-			ThirdState = "✘";
-		}
-		
-		if (FourthPower == 1)
-		{
-			FourthState = "✓";
-		}
-		
-		else if (FourthPower == 0)
-		{
-			FourthState = "✘";
-		}
-		
-		if (FifthPower == 1)
-		{
-			FifthState = "✓";
-		}
-		
-		else if (FifthPower == 0)
-		{
-			FifthState = "✘";
-		}
-		
-		if (SixthPower == 1)
-		{
-			SixthState = "✓";
-		}
-		
-		else if (SixthPower == 0)
-		{
-			SixthState = "✘";
-		}
-		
-		if (SeventhPower == 1)
-		{
-			SeventhState = "✓";
-		}
-		
-		else if (SeventhPower == 0)
-		{
-			SeventhState = "✘";
-		}
-		
-		if (EighthPower == 1)
-		{
-			EighthState = "✓";
-		}
-		
-		else if (EighthPower == 0)
-		{
-			EighthState = "✘";
-		}
-		
-		string[] Supper = {FirstState, SecondState, ThirdState, FourthState, FifthState, SixthState, SeventhState, EighthState};
-		Debug.LogFormat("[Guess Who? #{0}] Sequence Given: {1}", moduleId, DebugSequence[TheArray[0]] + "(" + Supper[TheArray[0]] + ")" + ", " + DebugSequence[TheArray[1]] + "(" + Supper[TheArray[1]] + ")" + ", " + DebugSequence[TheArray[2]] + "(" + Supper[TheArray[2]] + ")" + ", " + DebugSequence[TheArray[3]] + "(" + Supper[TheArray[3]] + ")" + ", " + DebugSequence[TheArray[4]] + "(" + Supper[TheArray[4]] + ")" + ", " + DebugSequence[TheArray[5]] + "(" + Supper[TheArray[5]] + ")" + ", " + DebugSequence[TheArray[6]] + "(" + Supper[TheArray[6]] + ")" + ", " + DebugSequence[TheArray[7]] + "(" + Supper[TheArray[7]] + ")");
-
 	}
 	
 	void AnswerOfTheDay()
 	{
 		TheArray.Shuffle();
-		FirstPower = UnityEngine.Random.Range(0, 2);
-		SecondPower = UnityEngine.Random.Range(0, 2);
-		ThirdPower = UnityEngine.Random.Range(0, 2);
-		FourthPower = UnityEngine.Random.Range(0, 2);
-		FifthPower = UnityEngine.Random.Range(0, 2);
-		SixthPower = UnityEngine.Random.Range(0, 2);
-		SeventhPower = UnityEngine.Random.Range(0, 2);
-		EighthPower = UnityEngine.Random.Range(0, 2);
-		
-		TheCombination = (FirstPower * 128) + (SecondPower * 64) + (ThirdPower * 32) + (FourthPower * 16) + (FifthPower * 8) + (SixthPower * 4) + (SeventhPower * 2) + (EighthPower * 1);
-		
-		Answer = Names[TheCombination].ToUpper();
-		Debug.LogFormat("[Guess Who? #{0}] Number Gathered: {1}", moduleId, TheCombination.ToString());
-		Debug.LogFormat("[Guess Who? #{0}] Name of the Person: {1} ", moduleId, Answer);
-	}
-	
-	void TheScreens()
-	{
-		FirstDisplay.text = Alphabet[TheFirstInteger];
-		SecondDisplay.text = Alphabet[TheSecondInteger];
-		ThirdDisplay.text = Alphabet[TheThirdInteger];
-		FourthDisplay.text = Alphabet[TheFourthInteger];
-		FifthDisplay.text = Alphabet[TheFifthInteger];
-	}
-	
-	void PressFirstLeftButton()
-	{
-		FirstLeftButton.AddInteractionPunch(0.2f);
-		Audio.PlaySoundAtTransform(SFX[6].name, transform);
-		if (Solvable == 1)
+		for (int x = 0; x < 8; x++)
 		{
-		TheFirstInteger = ((TheFirstInteger - 1) + 26) % 26;
-		TheScreens();
-		}
-	}
-	
-	void PressFirstRightButton()
-	{
-		FirstRightButton.AddInteractionPunch(0.2f);
-		Audio.PlaySoundAtTransform(SFX[6].name, transform);
-		if (Solvable == 1)
-		{
-		TheFirstInteger = (TheFirstInteger + 1) % 26;
-		TheScreens();
-		}
-	}
-	
-	void PressSecondLeftButton()
-	{
-		SecondLeftButton.AddInteractionPunch(0.2f);
-		Audio.PlaySoundAtTransform(SFX[6].name, transform);
-		if (Solvable == 1)
-		{
-		TheSecondInteger = ((TheSecondInteger - 1) + 26) % 26;
-		TheScreens();
-		}
-	}
-	
-	void PressSecondRightButton()
-	{
-		SecondRightButton.AddInteractionPunch(0.2f);
-		Audio.PlaySoundAtTransform(SFX[6].name, transform);
-		if (Solvable == 1)
-		{
-		TheSecondInteger = (TheSecondInteger + 1) % 26;
-		TheScreens();
-		}
-	}
-	
-	void PressThirdLeftButton()
-	{
-		ThirdLeftButton.AddInteractionPunch(0.2f);
-		Audio.PlaySoundAtTransform(SFX[6].name, transform);
-		if (Solvable == 1)
-		{
-		TheThirdInteger = ((TheThirdInteger - 1) + 26) % 26;
-		TheScreens();
-		}
-	}
-	
-	void PressThirdRightButton()
-	{
-		ThirdRightButton.AddInteractionPunch(0.2f);
-		Audio.PlaySoundAtTransform(SFX[6].name, transform);
-		if (Solvable == 1)
-		{
-		TheThirdInteger = (TheThirdInteger + 1) % 26;
-		TheScreens();
-		}
-	}
-	
-	void PressFourthLeftButton()
-	{
-		FourthLeftButton.AddInteractionPunch(0.2f);
-		Audio.PlaySoundAtTransform(SFX[6].name, transform);
-		if (Solvable == 1)
-		{
-		TheFourthInteger = ((TheFourthInteger - 1) + 26) % 26;
-		TheScreens();
-		}
-	}
-	
-	void PressFourthRightButton()
-	{
-		FourthRightButton.AddInteractionPunch(0.2f);
-		Audio.PlaySoundAtTransform(SFX[6].name, transform);
-		if (Solvable == 1)
-		{
-		TheFourthInteger = (TheFourthInteger + 1) % 26;
-		TheScreens();
-		}
-	}
-	
-	void PressFifthLeftButton()
-	{
-		FifthLeftButton.AddInteractionPunch(0.2f);
-		Audio.PlaySoundAtTransform(SFX[6].name, transform);
-		if (Solvable == 1)
-		{
-		TheFifthInteger = ((TheFifthInteger - 1) + 26) % 26;
-		TheScreens();
-		}
-	}
-	
-	void PressFifthRightButton()
-	{
-		FifthRightButton.AddInteractionPunch(0.2f);
-		Audio.PlaySoundAtTransform(SFX[6].name, transform);
-		if (Solvable == 1)
-		{
-		TheFifthInteger = (TheFifthInteger + 1) % 26;
-		TheScreens();
-		}
-	}
-	
-	void PressMainButton()
-	{
-		MainButton.AddInteractionPunch(0.2f);
-		Audio.PlaySoundAtTransform(SFX[2].name, transform);
-		if (Solvable == 0 && Playable == true)
-		{
-			StartCoroutine(ProcessingTheImages());
-			Solvable = 2;
-		}
-		
-		else if (Solvable == 1)
-		{
-		Debug.LogFormat("[Guess Who? #{0}] You Submitted: {1}", moduleId, Alphabet[TheFirstInteger] + Alphabet[TheSecondInteger] + Alphabet[TheThirdInteger] + Alphabet[TheFourthInteger] + Alphabet[TheFifthInteger]);
-			if ((Alphabet[TheFirstInteger] + Alphabet[TheSecondInteger] + Alphabet[TheThirdInteger] + Alphabet[TheFourthInteger] + Alphabet[TheFifthInteger]) == Answer)
+			Bases[x] = UnityEngine.Random.Range(0,2);
+			if (Bases[x] == 1)
 			{
-				Solvable = 3;
-				TheMarker.text = "";
-				ButtonSays.text = "";
-				StartCoroutine(YouGotIt());
+				int Add = 1;
+				for (int y = 0; y < 7 - x; y++)
+				{
+					Add *= 2;
+				}
+				TheCombination += Add;
 			}
+		}
+		Debug.LogFormat("[Guess Who? #{0}] Number Gathered: {1}", moduleId, TheCombination.ToString());
+		Debug.LogFormat("[Guess Who? #{0}] Name of the Person: {1} ", moduleId, Names[TheCombination]);
+	}
+	
+	void StateOfTheSequence()
+	{
+		string[] States = new string[8];
+		string Throwaway = "";
+		for (int x = 0; x < 8; x++)
+		{
+			if (Bases[TheArray[x]] == 1)
+			{
+				States[TheArray[x]] = "✓";
+			}
+			
 			else
 			{
-				Solvable = 3;
-				TheMarker.text = "";
-				ButtonSays.text = "";
-				StartCoroutine(ThatIsNotIt());
+				States[TheArray[x]] = "✘";
 			}
+			
+			Throwaway += DebugSequence[TheArray[x]] + "(" + States[TheArray[x]] + ")";
+			if (x != 7) Throwaway += ", ";
 		}
-	}	
-
-	IEnumerator ProcessingTheImages()
+		
+		Debug.LogFormat("[Guess Who? #{0}] Sequence Given: {1}", moduleId, Throwaway);
+	}
+	
+	IEnumerator ProcessingTheNames()
 	{
 		Recalling = true;
 		ButtonSays.text = "";
@@ -389,18 +180,17 @@ public class GuessWhoScript : MonoBehaviour
 			yield return new WaitForSeconds(0.05f);
 		}
 		yield return new WaitForSeconds(0.625f);
-		string Dotes = "........";
-		for (int v = 0; v < Dotes.Length; v++)
+		Waiting = "........";
+		for (int v = 0; v < Waiting.Length; v++)
 		{
-			Dots.text += Dotes[v].ToString();
+			Dots.text += Waiting[v].ToString();
 			Audio.PlaySoundAtTransform(SFX[0].name, transform);
 			yield return new WaitForSeconds(0.625f);
 		}
-		StartCoroutine(TheFollowing());
-		
+		StartCoroutine(Preparation());
 	}
 	
-	IEnumerator TheFollowing()
+	IEnumerator Preparation()
 	{
 		PleaseWait.text = "";
 		Dots.text = "";
@@ -410,315 +200,44 @@ public class GuessWhoScript : MonoBehaviour
 			yield return new WaitForSeconds(0.0425f);
 			TheQuestion.text += Delayed[x].ToString();
 		}
-		StartCoroutine(TheProcess());
+		StartCoroutine(TheCycle());
 	}
 	
-	void Coloring()
+	IEnumerator TheCycle()
 	{
-		if (TheArray[Order] == 0)
+		for (int x = 0; x < 8; x++)
 		{
-			TheAnswer.color = Color.red;
-		}
-		
-		else if (TheArray[Order] == 1)
-		{
-			TheAnswer.color = TheOrange;
-		}
-		
-		else if (TheArray[Order] == 2)
-		{
-			TheAnswer.color = Color.yellow;
-		}
-		
-		else if (TheArray[Order] == 3)
-		{
-			TheAnswer.color = Color.green;
-		}
-		
-		else if (TheArray[Order] == 4)
-		{
-			TheAnswer.color = Color.blue;
-		}
-		
-		else if (TheArray[Order] == 5)
-		{
-			TheAnswer.color = TheIndigo;
-		}
-		
-		else if (TheArray[Order] == 6)
-		{
-			TheAnswer.color = TheViolet;
-		}
-		
-		else if (TheArray[Order] == 7)
-		{
-			TheAnswer.color = ThePink;
-		}
-	}
-	
-	IEnumerator TheProcess()
-	{
-		int ForestTree = 0;
-		while(ForestTree < 8)
-		{
-			Coloring();
-			if (TheArray[Order] == 0)
+			TheAnswer.color = ROYGBIVP[TheArray[x]];
+			if (Bases[TheArray[x]] == 1)
 			{
-				if (FirstPower == 0)
-				{
-					yield return new WaitForSeconds(0.2f);	
-					TheAnswer.text = "N";
-					yield return new WaitForSeconds(0.2f);
-					TheAnswer.text = "NO";
-					yield return new WaitForSeconds(0.4f);
-					TheAnswer.text = "N";
-					yield return new WaitForSeconds(0.2f);
-					TheAnswer.text = "";
-				}
-				
-				else if (FirstPower == 1)
-				{
-					yield return new WaitForSeconds(0.14f);	
-					TheAnswer.text = "Y";
-					yield return new WaitForSeconds(0.14f);
-					TheAnswer.text = "YE";
-					yield return new WaitForSeconds(0.14f);
-					TheAnswer.text = "YES";
-					yield return new WaitForSeconds(0.3f);
-					TheAnswer.text = "YE";
-					yield return new WaitForSeconds(0.14f);
-					TheAnswer.text = "Y";
-					yield return new WaitForSeconds(0.14f);
-					TheAnswer.text = "";
-				}
-			}	
-			
-			else if (TheArray[Order] == 1)
-			{
-				if (SecondPower == 0)
-				{
-					yield return new WaitForSeconds(0.2f);	
-					TheAnswer.text = "N";
-					yield return new WaitForSeconds(0.2f);
-					TheAnswer.text = "NO";
-					yield return new WaitForSeconds(0.4f);
-					TheAnswer.text = "N";
-					yield return new WaitForSeconds(0.2f);
-					TheAnswer.text = "";
-				}
-				
-				else if (SecondPower == 1)
-				{
-					yield return new WaitForSeconds(0.14f);	
-					TheAnswer.text = "Y";
-					yield return new WaitForSeconds(0.14f);
-					TheAnswer.text = "YE";
-					yield return new WaitForSeconds(0.14f);
-					TheAnswer.text = "YES";
-					yield return new WaitForSeconds(0.3f);
-					TheAnswer.text = "YE";
-					yield return new WaitForSeconds(0.14f);
-					TheAnswer.text = "Y";
-					yield return new WaitForSeconds(0.14f);
-					TheAnswer.text = "";
-				}
+				yield return new WaitForSeconds(0.14f);	
+				TheAnswer.text = "Y";
+				yield return new WaitForSeconds(0.14f);
+				TheAnswer.text = "YE";
+				yield return new WaitForSeconds(0.14f);
+				TheAnswer.text = "YES";
+				yield return new WaitForSeconds(0.3f);
+				TheAnswer.text = "YE";
+				yield return new WaitForSeconds(0.14f);
+				TheAnswer.text = "Y";
+				yield return new WaitForSeconds(0.14f);
+				TheAnswer.text = "";
 			}
 			
-			else if (TheArray[Order] == 2)
+			else
 			{
-					
-				if (ThirdPower == 0)
-				{
-					yield return new WaitForSeconds(0.2f);	
-					TheAnswer.text = "N";
-					yield return new WaitForSeconds(0.2f);
-					TheAnswer.text = "NO";
-					yield return new WaitForSeconds(0.4f);
-					TheAnswer.text = "N";
-					yield return new WaitForSeconds(0.2f);
-					TheAnswer.text = "";
-				}
-				
-				else if (ThirdPower == 1)
-				{
-					yield return new WaitForSeconds(0.14f);	
-					TheAnswer.text = "Y";
-					yield return new WaitForSeconds(0.14f);
-					TheAnswer.text = "YE";
-					yield return new WaitForSeconds(0.14f);
-					TheAnswer.text = "YES";
-					yield return new WaitForSeconds(0.3f);
-					TheAnswer.text = "YE";
-					yield return new WaitForSeconds(0.14f);
-					TheAnswer.text = "Y";
-					yield return new WaitForSeconds(0.14f);
-					TheAnswer.text = "";
-				}
-			}
-				
-			else if (TheArray[Order] == 3)
-			{
-				if (FourthPower == 0)
-				{
-					yield return new WaitForSeconds(0.2f);	
-					TheAnswer.text = "N";
-					yield return new WaitForSeconds(0.2f);
-					TheAnswer.text = "NO";
-					yield return new WaitForSeconds(0.4f);
-					TheAnswer.text = "N";
-					yield return new WaitForSeconds(0.2f);
-					TheAnswer.text = "";
-				}
-				
-				else if (FourthPower == 1)
-				{
-					yield return new WaitForSeconds(0.14f);	
-					TheAnswer.text = "Y";
-					yield return new WaitForSeconds(0.14f);
-					TheAnswer.text = "YE";
-					yield return new WaitForSeconds(0.14f);
-					TheAnswer.text = "YES";
-					yield return new WaitForSeconds(0.3f);
-					TheAnswer.text = "YE";
-					yield return new WaitForSeconds(0.14f);
-					TheAnswer.text = "Y";
-					yield return new WaitForSeconds(0.14f);
-					TheAnswer.text = "";
-				}
-			}	
-			
-			else if (TheArray[Order] == 4)
-			{
-				if (FifthPower == 0)
-				{
-					yield return new WaitForSeconds(0.2f);	
-					TheAnswer.text = "N";
-					yield return new WaitForSeconds(0.2f);
-					TheAnswer.text = "NO";
-					yield return new WaitForSeconds(0.4f);
-					TheAnswer.text = "N";
-					yield return new WaitForSeconds(0.2f);
-					TheAnswer.text = "";
-				}
-				
-				else if (FifthPower == 1)
-				{
-					yield return new WaitForSeconds(0.14f);	
-					TheAnswer.text = "Y";
-					yield return new WaitForSeconds(0.14f);
-					TheAnswer.text = "YE";
-					yield return new WaitForSeconds(0.14f);
-					TheAnswer.text = "YES";
-					yield return new WaitForSeconds(0.3f);
-					TheAnswer.text = "YE";
-					yield return new WaitForSeconds(0.14f);
-					TheAnswer.text = "Y";
-					yield return new WaitForSeconds(0.14f);
-					TheAnswer.text = "";
-				}
-			}	
-			
-			else if (TheArray[Order] == 5)
-			{
-				if (SixthPower == 0)
-				{
-					yield return new WaitForSeconds(0.2f);	
-					TheAnswer.text = "N";
-					yield return new WaitForSeconds(0.2f);
-					TheAnswer.text = "NO";
-					yield return new WaitForSeconds(0.4f);
-					TheAnswer.text = "N";
-					yield return new WaitForSeconds(0.2f);
-					TheAnswer.text = "";
-				}
-				
-				else if (SixthPower == 1)
-				{
-					yield return new WaitForSeconds(0.14f);	
-					TheAnswer.text = "Y";
-					yield return new WaitForSeconds(0.14f);
-					TheAnswer.text = "YE";
-					yield return new WaitForSeconds(0.14f);
-					TheAnswer.text = "YES";
-					yield return new WaitForSeconds(0.3f);
-					TheAnswer.text = "YE";
-					yield return new WaitForSeconds(0.14f);
-					TheAnswer.text = "Y";
-					yield return new WaitForSeconds(0.14f);
-					TheAnswer.text = "";
-				}
-			}
-			
-			else if (TheArray[Order] == 6)
-			{
-				if (SeventhPower == 0)
-				{
-					yield return new WaitForSeconds(0.2f);	
-					TheAnswer.text = "N";
-					yield return new WaitForSeconds(0.2f);
-					TheAnswer.text = "NO";
-					yield return new WaitForSeconds(0.4f);
-					TheAnswer.text = "N";
-					yield return new WaitForSeconds(0.2f);
-					TheAnswer.text = "";
-				}
-				
-				else if (SeventhPower == 1)
-				{
-					yield return new WaitForSeconds(0.14f);	
-					TheAnswer.text = "Y";
-					yield return new WaitForSeconds(0.14f);
-					TheAnswer.text = "YE";
-					yield return new WaitForSeconds(0.14f);
-					TheAnswer.text = "YES";
-					yield return new WaitForSeconds(0.3f);
-					TheAnswer.text = "YE";
-					yield return new WaitForSeconds(0.14f);
-					TheAnswer.text = "Y";
-					yield return new WaitForSeconds(0.14f);
-					TheAnswer.text = "";
-				}
-			}
-
-			else if (TheArray[Order] == 7)
-			{
-				if (EighthPower == 0)
-				{
-					yield return new WaitForSeconds(0.2f);	
-					TheAnswer.text = "N";
-					yield return new WaitForSeconds(0.2f);
-					TheAnswer.text = "NO";
-					yield return new WaitForSeconds(0.4f);
-					TheAnswer.text = "N";
-					yield return new WaitForSeconds(0.2f);
-					TheAnswer.text = "";
-				}
-				
-				else if (EighthPower == 1)
-				{
-					yield return new WaitForSeconds(0.14f);	
-					TheAnswer.text = "Y";
-					yield return new WaitForSeconds(0.14f);
-					TheAnswer.text = "YE";
-					yield return new WaitForSeconds(0.14f);
-					TheAnswer.text = "YES";
-					yield return new WaitForSeconds(0.3f);
-					TheAnswer.text = "YE";
-					yield return new WaitForSeconds(0.14f);
-					TheAnswer.text = "Y";
-					yield return new WaitForSeconds(0.14f);
-					TheAnswer.text = "";
-				}
+				yield return new WaitForSeconds(0.2f);	
+				TheAnswer.text = "N";
+				yield return new WaitForSeconds(0.2f);
+				TheAnswer.text = "NO";
+				yield return new WaitForSeconds(0.4f);
+				TheAnswer.text = "N";
+				yield return new WaitForSeconds(0.2f);
+				TheAnswer.text = "";
 			}
 			yield return new WaitForSeconds(0.5f);
-			ForestTree++;
-			Order++;
 		}
-		
-		if (Order == 8)
-		{
-			StartCoroutine(WhoAmI());
-		}
+		StartCoroutine(WhoAmI());
 	}
 	
 	IEnumerator WhoAmI()
@@ -727,196 +246,107 @@ public class GuessWhoScript : MonoBehaviour
 		TheMarker.text = "?";
 		Audio.PlaySoundAtTransform(SFX[4].name, transform);
 		yield return new WaitForSeconds(3f);
-		FirstDisplay.text = Alphabet[TheFirstInteger];
-		Audio.PlaySoundAtTransform(SFX[3].name, transform);
-		yield return new WaitForSeconds(0.2f);
-		SecondDisplay.text = Alphabet[TheSecondInteger];
-		Audio.PlaySoundAtTransform(SFX[3].name, transform);
-		yield return new WaitForSeconds(0.2f);
-		ThirdDisplay.text = Alphabet[TheThirdInteger];
-		Audio.PlaySoundAtTransform(SFX[3].name, transform);
-		yield return new WaitForSeconds(0.2f);
-		FourthDisplay.text = Alphabet[TheFourthInteger];
-		Audio.PlaySoundAtTransform(SFX[3].name, transform);
-		yield return new WaitForSeconds(0.2f);
-		FifthDisplay.text = Alphabet[TheFifthInteger];
-		Audio.PlaySoundAtTransform(SFX[3].name, transform);
-		yield return new WaitForSeconds(0.2f);
-		ButtonSays.text = "G";
-		Audio.PlaySoundAtTransform(SFX[1].name, transform);
-		yield return new WaitForSeconds(0.2f);
-		ButtonSays.text = "GU";
-		Audio.PlaySoundAtTransform(SFX[1].name, transform);
-		yield return new WaitForSeconds(0.2f);
-		ButtonSays.text = "GUE";
-		Audio.PlaySoundAtTransform(SFX[1].name, transform);
-		yield return new WaitForSeconds(0.2f);
-		ButtonSays.text = "GUES";
-		Audio.PlaySoundAtTransform(SFX[1].name, transform);
-		yield return new WaitForSeconds(0.2f);
-		ButtonSays.text = "GUESS";
-		Audio.PlaySoundAtTransform(SFX[1].name, transform);
-		Solvable = 1;
+		for (int x = 0; x < 5; x++)
+		{
+			Displays[x].text = Alphabet[NumberBase[x]];
+			Audio.PlaySoundAtTransform(SFX[3].name, transform);
+			yield return new WaitForSeconds(0.2f);
+		}
+		string Guess = "GUESS";
+		for (int y = 0; y < 5; y++)
+		{
+			ButtonSays.text += Guess[y].ToString();
+			Audio.PlaySoundAtTransform(SFX[1].name, transform);
+			yield return new WaitForSeconds(0.2f);
+		}
+		Solvable = true;
+		Playable = true;
 		Recalling = false;
 		Guessing = true;
 	}
 	
-	IEnumerator NotCopycat()
+	IEnumerator ProcessingTheInput()
 	{
-		if (StackNumber == 248)
+		Processing = true;
+		TheMarker.text = "";
+		ButtonSays.text = "";
+		for (int b = 0; b < 5; b++)
 		{
-			yield return new WaitForSeconds(0.1f);
-			TheTrue.text = "N";
-			yield return new WaitForSeconds(0.1f);
-			TheTrue.text = "No";
-			yield return new WaitForSeconds(0.1f);
-			TheTrue.text = "Not\n";
-			yield return new WaitForSeconds(0.1f);
-			TheTrue.text = "Not\nR";
-			yield return new WaitForSeconds(0.1f);
-			TheTrue.text = "Not\nRi";
-			yield return new WaitForSeconds(0.1f);
-			TheTrue.text = "Not\nRig";
-			yield return new WaitForSeconds(0.1f);
-			TheTrue.text = "Not\nRigh";
-			yield return new WaitForSeconds(0.1f);
-			TheTrue.text = "Not\nRight";
-		}	
-		
-		else if (StackNumber == 300)
+			Baseline += Displays[b].text;
+		}
+		Debug.LogFormat("[Guess Who? #{0}] You submitted: {1}", moduleId, Baseline);
+		for (int x = 0; x < 305; x++)
 		{
-			FirstDisplay.color = Color.red;
-			SecondDisplay.color = Color.red;
-			ThirdDisplay.color = Color.red;
-			FourthDisplay.color = Color.red;
-			FifthDisplay.color = Color.red;
-			FirstDisplay.text = "R";
-			SecondDisplay.text = "E";
-			ThirdDisplay.text = "S";
-			FourthDisplay.text = "E";
-			FifthDisplay.text = "T";
-			Debug.LogFormat("[Guess Who? #{0}] Name does not match. Try again!", moduleId);
-			yield return new WaitForSeconds(1f);
-			Module.HandleStrike();
-			Reset();
-			ActivateModule();
-			Processing = false;
-			Guessing = false;
-		}	
+			for (int a = 0; a < 5; a++)
+			{
+				Displays[a].text = Alphabet[UnityEngine.Random.Range(0,26)];
+			}
+			yield return new WaitForSeconds(0.01f);
+			
+			if (x == 248)
+			{
+				StartCoroutine(ResultingDisplay());
+			}
+		}
 	}
 	
-	IEnumerator Copycat()
+	IEnumerator ResultingDisplay()
 	{
-		if (StackNumber == 248)
+		Playable = false;
+		string[] Results = {"Not\nRight", "You\nGot It", "NICE ", "RESET"};
+		if (Baseline == Names[TheCombination])
 		{
-			yield return new WaitForSeconds(0.1f);
-			TheTrue.text = "Y";
-			yield return new WaitForSeconds(0.1f);
-			TheTrue.text = "Yo";
-			yield return new WaitForSeconds(0.1f);
-			TheTrue.text = "You\n";
-			yield return new WaitForSeconds(0.1f);
-			TheTrue.text = "You\nG";
-			yield return new WaitForSeconds(0.1f);
-			TheTrue.text = "You\nGo";
-			yield return new WaitForSeconds(0.1f);
-			TheTrue.text = "You\nGot\n";
-			yield return new WaitForSeconds(0.1f);
-			TheTrue.text = "You\nGot I";
-			yield return new WaitForSeconds(0.1f);
-			TheTrue.text = "You\nGot It";
-		}	
-		
-		else if (StackNumber == 300)
-		{
-			FirstDisplay.color = Color.green;
-			SecondDisplay.color = Color.green;
-			ThirdDisplay.color = Color.green;
-			FourthDisplay.color = Color.green;
+			for (int x = 0; x < Results[1].Length; x++)
+			{
+				TheTrue.text += Results[1][x].ToString();
+				yield return new WaitForSeconds(0.1f);
+			}
+			StopCoroutine(ProcessingTheInput());
+			for (int y = 0; y < 5; y++)
+			{
+				Displays[y].color = Color.green;
+				Displays[y].text = Results[2][y].ToString();
+			}
+			Exclaim.text = "!";	
 			Exclaim.color = Color.green;
-			FirstDisplay.text = "N";
-			SecondDisplay.text = "I";
-			ThirdDisplay.text = "C";
-			FourthDisplay.text = "E";
-			FifthDisplay.text = "";
-			Exclaim.text = "!";			
-			Debug.LogFormat("[Guess Who? #{0}] Its a match. Module is done!", moduleId);
+			Debug.LogFormat("[Guess Who? #{0}] It's a match. Module is done!", moduleId);
 			Audio.PlaySoundAtTransform(SFX[5].name, transform);
 			Module.HandlePass();
 			Processing = false;
-		}	
-	}
-	
-	
-	IEnumerator YouGotIt()
-	{
-		Processing = true;
-		while (StackNumber < 300)
-		{
-			int rand1 = UnityEngine.Random.Range(0, 26);
-			int rand2 = UnityEngine.Random.Range(0, 26);
-			int rand3 = UnityEngine.Random.Range(0, 26);
-			int rand4 = UnityEngine.Random.Range(0, 26);
-			int rand5 = UnityEngine.Random.Range(0, 26);
-			FirstDisplay.text = Alphabet[rand1];
-			SecondDisplay.text = Alphabet[rand2];
-			ThirdDisplay.text = Alphabet[rand3];
-			FourthDisplay.text = Alphabet[rand4];
-			FifthDisplay.text = Alphabet[rand5];
-			StackNumber++;
-			StartCoroutine(Copycat());
-			yield return new WaitForSeconds(0.01f);
 		}
-	}
-	
-	IEnumerator ThatIsNotIt()
-	{
-		Processing = true;
-		while (StackNumber < 300)
+		
+		else
 		{
-			int rand1 = UnityEngine.Random.Range(0, 26);
-			int rand2 = UnityEngine.Random.Range(0, 26);
-			int rand3 = UnityEngine.Random.Range(0, 26);
-			int rand4 = UnityEngine.Random.Range(0, 26);
-			int rand5 = UnityEngine.Random.Range(0, 26);
-			FirstDisplay.text = Alphabet[rand1];
-			SecondDisplay.text = Alphabet[rand2];
-			ThirdDisplay.text = Alphabet[rand3];
-			FourthDisplay.text = Alphabet[rand4];
-			FifthDisplay.text = Alphabet[rand5];
-			StackNumber++;
-			StartCoroutine(NotCopycat());
-			yield return new WaitForSeconds(0.01f);
+			for (int x = 0; x < Results[0].Length; x++)
+			{
+				TheTrue.text += Results[0][x].ToString();
+				yield return new WaitForSeconds(0.1f);
+			}
+			StopCoroutine(ProcessingTheInput());
+			for (int y = 0; y < 5; y++)
+			{
+				Displays[y].color = Color.red;
+				Displays[y].text = Results[3][y].ToString();
+
+			}
+			Debug.LogFormat("[Guess Who? #{0}] The name does not match. Try again!", moduleId);
+			yield return new WaitForSeconds(1f);
+			Module.HandleStrike();
+			for (int z = 0; z < 5; z++)
+			{
+				Displays[z].color = Color.white;
+				Displays[z].text = "";
+				NumberBase[z] = 0;
+			}
+			TheTrue.text = "";
+			TheCombination = 0;
+			ActivateModule();
+			Baseline = "";
+			Playable = true;
+			Solvable = false;
+			Guessing = false;
+			Processing = false;
 		}
-	}
-	
-	void Reset()
-	{
-		TheFirstInteger = 0;
-		TheSecondInteger = 0;
-		TheThirdInteger = 0;
-		TheFourthInteger = 0;
-		TheFifthInteger = 0;
-		
-		TheCombination = 0;
-		
-		Solvable = 0;
-		
-		Order = 0;
-		StackNumber = 0;
-		
-		FirstDisplay.text = "";
-		SecondDisplay.text = "";
-		ThirdDisplay.text = "";
-		FourthDisplay.text = "";
-		FifthDisplay.text = "";
-		TheTrue.text = "";
-		
-		FirstDisplay.color = Color.white;
-		SecondDisplay.color = Color.white;
-		ThirdDisplay.color = Color.white;
-		FourthDisplay.color = Color.white;
-		FifthDisplay.color = Color.white;
 	}
 	
 	//twitch plays
@@ -931,23 +361,25 @@ public class GuessWhoScript : MonoBehaviour
 	IEnumerator ProcessTwitchCommand(string command)
 	{
 		string[] parameters = command.Split(' ');
+		if (Recalling)
+		{
+			yield return "sendtochaterror The module is recalling. The command was not processed.";
+			yield break;
+		}
+		
+		if (Processing)
+		{
+			yield return "sendtochaterror The module is currently processing the answer. The command was not processed.";
+			yield break;
+		}
+			
 		if (Regex.IsMatch(command, @"^\s*recall\s*$", RegexOptions.IgnoreCase | RegexOptions.CultureInvariant))
 		{
 			yield return null;
-			if (Recalling)
-			{
-				yield return "sendtochaterror The module is recalling. The command was not processed.";
-				yield break;
-			}
-			else if (Guessing)
+			
+			if (Guessing)
 			{
 				yield return "sendtochaterror You are currently guessing a person. The command was not processed.";
-				yield break;
-			}
-			
-			else if (Processing)
-			{
-				yield return "sendtochaterror The module is currently processing the answer. The command was not processed.";
 				yield break;
 			}
 			MainButton.OnInteract();
@@ -956,22 +388,12 @@ public class GuessWhoScript : MonoBehaviour
 		if (Regex.IsMatch(command, @"^\s*recallfocus\s*$", RegexOptions.IgnoreCase | RegexOptions.CultureInvariant))
 		{
 			yield return null;
-			if (Recalling)
-			{
-				yield return "sendtochaterror The module is recalling. The command was not processed.";
-				yield break;
-			}
-			else if (Guessing)
+			if (Guessing)
 			{
 				yield return "sendtochaterror You are currently guessing a person. The command was not processed.";
 				yield break;
 			}
 			
-			else if (Processing)
-			{
-				yield return "sendtochaterror The module is currently processing the answer. The command was not processed.";
-				yield break;
-			}
 			MainButton.OnInteract();
 			while (Recalling)
 			{
@@ -988,25 +410,13 @@ public class GuessWhoScript : MonoBehaviour
 				yield break;
 			}
 			
-			else if (Recalling)
-			{
-				yield return "sendtochaterror The module is recalling. The command was not processed.";
-				yield break;
-			}
-			
-			else if (!Guessing)
+			if (!Guessing)
 			{
 				yield return "sendtochaterror You are currently not guessing a person. The command was not processed.";
 				yield break;
 			}
 			
-			else if (Processing)
-			{
-				yield return "sendtochaterror The module is currently processing the answer. The command was not processed.";
-				yield break;
-			}
-			
-			else if (parameters[1].Length > 5 || parameters[1].Length < 5)
+			if (parameters[1].Length > 5 || parameters[1].Length < 5)
 			{
 				yield return "sendtochaterror Name length is too long/short. The command was not processed.";
 				yield break;
@@ -1021,61 +431,17 @@ public class GuessWhoScript : MonoBehaviour
 				}
 			}
 				
-			int NumberPress = 0;
-			foreach (char c in parameters[1])
+			for (int x = 0; x < parameters[1].Length; x++)
 			{
-				if (NumberPress == 0)
+				while (Displays[x].text != parameters[1][x].ToString())
 				{
-					while (FirstDisplay.text != parameters[1][NumberPress].ToString())
-					{
-						FirstRightButton.OnInteract();
-						yield return new WaitForSecondsRealtime(0.05f);
-					}
-					NumberPress++;
-				}
-				
-				else if (NumberPress == 1)
-				{
-					while (SecondDisplay.text != parameters[1][NumberPress].ToString())
-					{
-						SecondRightButton.OnInteract();
-						yield return new WaitForSecondsRealtime(0.05f);
-					}
-					NumberPress++;
-				}
-				
-				else if (NumberPress == 2)
-				{
-					while (ThirdDisplay.text != parameters[1][NumberPress].ToString())
-					{
-						ThirdRightButton.OnInteract();
-						yield return new WaitForSecondsRealtime(0.05f);
-					}
-					NumberPress++;
-				}
-				
-				else if (NumberPress == 3)
-				{
-					while (FourthDisplay.text != parameters[1][NumberPress].ToString())
-					{
-						FourthRightButton.OnInteract();
-						yield return new WaitForSecondsRealtime(0.05f);
-					}
-					NumberPress++;
-				}
-				
-				else if (NumberPress == 4)
-				{
-					while (FifthDisplay.text != parameters[1][NumberPress].ToString())
-					{
-						FifthRightButton.OnInteract();
-						yield return new WaitForSecondsRealtime(0.05f);
-					}
-					yield return "solve";
-					yield return "strike";
-					MainButton.OnInteract();
+					ButtonRight[x].OnInteract();
+					yield return new WaitForSecondsRealtime(0.05f);
 				}
 			}
+			yield return "solve";
+			yield return "strike";
+			MainButton.OnInteract();
 		}
 	}
 }
