@@ -41,6 +41,7 @@ public class GuessWhoScript : MonoBehaviour
 	bool Playable = true; 
 	bool Solvable = false;
 	string Baseline;
+	Coroutine CoroSpin;
 	
 	//Logging
 	static int moduleIdCounter = 1;
@@ -265,6 +266,18 @@ public class GuessWhoScript : MonoBehaviour
 		Guessing = true;
 	}
 	
+	IEnumerator CycleButton()
+	{
+		while (true)
+		{
+			for (int a = 0; a < 5; a++)
+			{
+				Displays[a].text = Alphabet[UnityEngine.Random.Range(0,26)];
+			}
+			yield return new WaitForSeconds(0.01f);
+		}
+	}
+	
 	IEnumerator ProcessingTheInput()
 	{
 		Processing = true;
@@ -275,19 +288,9 @@ public class GuessWhoScript : MonoBehaviour
 			Baseline += Displays[b].text;
 		}
 		Debug.LogFormat("[Guess Who? #{0}] You submitted: {1}", moduleId, Baseline);
-		for (int x = 0; x < 305; x++)
-		{
-			for (int a = 0; a < 5; a++)
-			{
-				Displays[a].text = Alphabet[UnityEngine.Random.Range(0,26)];
-			}
-			yield return new WaitForSeconds(0.01f);
-			
-			if (x == 248)
-			{
-				StartCoroutine(ResultingDisplay());
-			}
-		}
+		CoroSpin = StartCoroutine(CycleButton());
+		yield return new WaitForSecondsRealtime(3f);
+		StartCoroutine(ResultingDisplay());
 	}
 	
 	IEnumerator ResultingDisplay()
@@ -301,9 +304,10 @@ public class GuessWhoScript : MonoBehaviour
 				TheTrue.text += Results[1][x].ToString();
 				yield return new WaitForSeconds(0.1f);
 			}
-			StopCoroutine(ProcessingTheInput());
+			StopCoroutine(CoroSpin);
 			for (int y = 0; y < 5; y++)
 			{
+				Displays[y].text = "";
 				Displays[y].color = Color.green;
 				Displays[y].text = Results[2][y].ToString();
 			}
@@ -322,7 +326,7 @@ public class GuessWhoScript : MonoBehaviour
 				TheTrue.text += Results[0][x].ToString();
 				yield return new WaitForSeconds(0.1f);
 			}
-			StopCoroutine(ProcessingTheInput());
+			StopCoroutine(CoroSpin);
 			for (int y = 0; y < 5; y++)
 			{
 				Displays[y].color = Color.red;
