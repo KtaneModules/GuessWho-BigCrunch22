@@ -32,7 +32,7 @@ public class GuessWhoScript : MonoBehaviour
 	public Color[] ROYGBIVP;
 	public string[] Names;
 	string[] Alphabet = {"A", "B", "C", "D", "E", "F", "G", "H", "I", "J", "K", "L", "M", "N", "O", "P", "Q", "R", "S", "T", "U", "V", "W", "X", "Y", "Z"};
-	string[] DebugSequence = {"Red", "Orange", "Yellow", "Green", "Blue", "Indigo", "Violet", "Pink"};
+	string[] DebugSequence = {"Red", "Orange", "Yellow", "Green", "Blue", "Violet", "Cyan", "Pink"};
 	int[] TheArray = {0, 1, 2, 3, 4, 5, 6, 7};
 	
 	int[] NumberBase = {0,0,0,0,0};
