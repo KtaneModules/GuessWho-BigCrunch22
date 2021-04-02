@@ -434,18 +434,99 @@ public class GuessWhoScript : MonoBehaviour
 					yield break;
 				}
 			}
-				
+
 			for (int x = 0; x < parameters[1].Length; x++)
 			{
-				while (Displays[x].text != parameters[1][x].ToString())
+				int ct1 = 0;
+				int ct2 = 0;
+				int start = NumberBase[x];
+				int check = Array.IndexOf(Alphabet, parameters[1][x].ToString());
+				while (start != check)
+                {
+					start++;
+					ct1++;
+					if (start > 25)
+						start = 0;
+                }
+				start = NumberBase[x];
+				while (start != check)
 				{
-					ButtonRight[x].OnInteract();
-					yield return new WaitForSecondsRealtime(0.05f);
+					start--;
+					ct2++;
+					if (start < 0)
+						start = 25;
 				}
+				if (ct1 < ct2)
+                {
+					for (int i = 0; i < ct1; i++)
+                    {
+						ButtonRight[x].OnInteract();
+						yield return new WaitForSecondsRealtime(0.05f);
+					}
+                }
+				else if (ct2 < ct1)
+                {
+					for (int i = 0; i < ct2; i++)
+					{
+						ButtonLeft[x].OnInteract();
+						yield return new WaitForSecondsRealtime(0.05f);
+					}
+				}
+                else
+                {
+					int type = UnityEngine.Random.Range(0, 2);
+					if (type == 0)
+                    {
+						for (int i = 0; i < ct1; i++)
+						{
+							ButtonLeft[x].OnInteract();
+							yield return new WaitForSecondsRealtime(0.05f);
+						}
+					}
+                    else
+                    {
+						for (int i = 0; i < ct1; i++)
+						{
+							ButtonRight[x].OnInteract();
+							yield return new WaitForSecondsRealtime(0.05f);
+						}
+					}
+                }
 			}
 			yield return "solve";
 			yield return "strike";
 			MainButton.OnInteract();
 		}
+	}
+
+	IEnumerator TwitchHandleForcedSolve()
+    {
+		if (Processing && Baseline != Names[TheCombination])
+        {
+			StopAllCoroutines();
+			string[] Results = { "You\nGot It", "NICE " };
+			TheTrue.text = "";
+			for (int x = 0; x < Results[0].Length; x++)
+				TheTrue.text += Results[0][x].ToString();
+			for (int y = 0; y < 5; y++)
+			{
+				Displays[y].text = "";
+				Displays[y].color = Color.green;
+				Displays[y].text = Results[1][y].ToString();
+			}
+			Exclaim.text = "!";
+			Exclaim.color = Color.green;
+			Audio.PlaySoundAtTransform(SFX[5].name, transform);
+			Module.HandlePass();
+			yield break;
+		}
+		if (!Processing)
+        {
+			if (!Recalling && !Guessing)
+				MainButton.OnInteract();
+			while (Recalling) yield return true;
+			yield return ProcessTwitchCommand("guess " + Names[TheCombination]);
+		}
+		while (Processing) yield return true;
 	}
 }
