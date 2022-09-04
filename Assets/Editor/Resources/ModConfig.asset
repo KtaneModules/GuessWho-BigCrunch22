@@ -16,8 +16,8 @@ MonoBehaviour:
   author: BigCrunch22
   description: "\"So you're telling me, after making 100s of ridiculuous module requests
     like a Vault, a Safe, a Sun, and a Moon... you're asking me to make Guess Who?
-    Guess who's not making your mod? NOT ME! Because I made it into reality. Peace!\"\n\nIdea
-    - Blananas2\nImplementor - BigCrunch22\r\n\r\nIf someone wants to add TP Support/Logging/Anything
+    Guess who's not making your mod? NOT ME! Because I made it into reality. Peace!\"\r\n\r\nIdea
+    - Blananas2\r\nImplementor - BigCrunch22\r\n\r\nIf someone wants to add TP Support/Logging/Anything
     useful, you have my approval for that."
   version: 1.0
   outputFolder: build

@@ -38,7 +38,7 @@ public class GuessWhoScript : MonoBehaviour
 	int[] NumberBase = {0,0,0,0,0};
 	int[] Bases = new int[8];
 	int TheCombination = 0;
-	bool Playable = true; 
+	bool Playable = false; 
 	bool Solvable = false;
 	string Baseline;
 	Coroutine CoroSpin;
